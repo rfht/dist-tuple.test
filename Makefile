@@ -20,19 +20,40 @@ SQLITE ?=	${LOCALBASE}/bin/sqlite3
 
 .include "${DT_MK}"
 
-_SITES = ${.VARIABLES:MSITES.*}
+_TEMPLATES = ${.VARIABLES:MSITES.*:E}
+.for _t in ${_TEMPLATES}
+DETAILS += "${_t}:\n"
+.  for _d in SITES TEMPLATE_EXTRACT_SUFX TEMPLATE_DISTFILES TEMPLATE_HOMEPAGE
+.    if !empty(${_d}.${_t})
+DETAILS += "\t${_d}.${_t}:\t${${_d}.${_t}}\n"
+.    elif !empty(${_d})
+DETAILS += "\t${_d}:\t${${_d}}\n"
+.    else
+DETAILS += "\t${_d}.${_t}: MISSING!"
+ERRORS += "ERROR: Template _t has no value for ${_d}.${_t} and no default (${_d})."
+.    endif
+.  endfor
+DETAILS += "\n"
+.endfor
 
-all: static-vars
-	@echo
-	@echo "Done."
-	@echo
+all: templates
 
-static-vars:
+templates:
 	@echo
 	@echo "1. Static Variables"
 	@echo "==================="
 	@echo
-	@echo "Known SITES.x"
-	@echo "-------------"
+	@echo "1.1 Known Templates"
+	@echo "-------------------"
 	@echo
-	@for s in ${_SITES}; do echo "$$s"; done
+	@echo ${DETAILS}
+
+.END:
+	@echo "Done."
+	@echo
+.  if defined(ERRORS)
+	@echo 1>&2 "Exiting with error:"
+.    for _m in ${ERRORS}
+	@echo 1>&2 ${_m}
+.    endfor
+.  endif
