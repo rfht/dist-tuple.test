@@ -36,6 +36,8 @@ ERRORS += "ERROR: Template _t has no value for ${_d}.${_t} and no default (${_d}
 DETAILS += "\n"
 .endfor
 
+ALL_DT_PORTS !!= ${SQLITE} ${SQLPORTS} 'select FullPkgPath from DistTuple;'
+
 all: templates
 
 templates:
@@ -48,10 +50,12 @@ templates:
 	@echo
 	@echo ${DETAILS}
 
+list-dist-tuple-ports:
+	@echo ${ALL_DT_PORTS}
+
 .END:
-	@echo "Done."
-	@echo
 .  if defined(ERRORS)
+	@echo
 	@echo 1>&2 "Exiting with error:"
 .    for _m in ${ERRORS}
 	@echo 1>&2 ${_m}
