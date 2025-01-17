@@ -40,6 +40,13 @@ DETAILS += "\n"
 ALL_DT_PORTS !!=	${SQLITE} ${SQLPORTS} 'select FullPkgPath from DistTuple;'
 PORTS ?=		${ALL_DT_PORTS}
 
+.for _p in ${PORTS}
+_portline != ${SQLITE} ${SQLPORTS} 'select Type, Account, Project, Id, Mv from DistTuple where FullPkgPath = "${_p}";'
+PORTS_DATA +:= "${_portline}"
+.endfor
+
+## TARGETS ##
+
 all: templates
 .  for _p in ${PORTS}
 	@echo "Check port ${_p}:"
@@ -75,4 +82,7 @@ check-dist-tuple:
 .    endfor
 .  endif
 
-.PHONY: all templates list-dist-tuple-ports
+# DEBUG
+	@echo ${PORTS_DATA}
+
+.PHONY: all check-dist-tuple list-dist-tuple-ports templates
