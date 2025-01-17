@@ -15,11 +15,11 @@
 PORTSDIR ?=	/usr/ports
 LOCALBASE ?=	/usr/local
 DT_MK ?=	${PORTSDIR}/infrastructure/mk/dist-tuple.port.mk
-DT_PATTERN ?=	${PORTSDIR}/infrastructure/db/dist-tuple.pattern
 SQLPORTS ?=	${LOCALBASE}/share/sqlports
 SQLITE ?=	${LOCALBASE}/bin/sqlite3
 
-.include "${DT_PATTERN}"
+.include "${DT_MK}"
+.include "placeholders.mk"
 
 _TEMPLATES = ${.VARIABLES:MSITES.*:E}
 .for _t in ${_TEMPLATES}
@@ -58,21 +58,13 @@ templates:
 list-dist-tuple-ports:
 	@echo ${ALL_DT_PORTS}
 
-check-dist-tuple: prepare-check-dist-tuple
+check-dist-tuple:
 	@echo "DISTNAME:\t${DISTNAME}"
 	@echo "_DT_WRKDIST:\t${_DT_WRKDIST}"
 	@echo "DISTFILES:\t${DISTFILES}"
 	@echo "DISTFILES.github:\t${DISTFILES.github}"
 	@echo "EXTRACT_SUFX.github:\t${EXTRACT_SUFX.github}"
 	@echo "HOMEPAGE:\t${HOMEPAGE}"
-
-prepare-check-dist-tuple:
-.if empty(DIST_TUPLE)
-ERRORS += "Need to provide DIST_TUPLE for target check-dist-tuple"
-.else
-.  include "placeholders.mk"
-.  include "${DT_MK}"
-.endif
 
 .END:
 .  if defined(ERRORS)
