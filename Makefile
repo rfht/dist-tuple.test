@@ -39,6 +39,10 @@ DETAILS += "\n"
 ALL_DT_PORTS !!= ${SQLITE} ${SQLPORTS} 'select FullPkgPath from DistTuple;'
 
 all: templates
+PORTS ?= ${ALL_DT_PORTS}
+.  for _p in ${PORTS}
+	@echo "Check port ${_p}:"
+.  endfor
 
 templates:
 	@echo
@@ -61,3 +65,5 @@ list-dist-tuple-ports:
 	@echo 1>&2 ${_m}
 .    endfor
 .  endif
+
+.PHONY: all templates list-dist-tuple-ports
