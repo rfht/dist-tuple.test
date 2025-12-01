@@ -23,7 +23,7 @@ SQLITE ?=	${LOCALBASE}/bin/sqlite3
 
 _TEMPLATES = ${.VARIABLES:MSITES.*:E}
 .for _t in ${_TEMPLATES}
-DETAILS += "${_t}:\n"
+DETAILS += "\n${_t}:\n"
 .  for _d in SITES TEMPLATE_EXTRACT_SUFX TEMPLATE_DISTFILES TEMPLATE_HOMEPAGE
 .    if !empty(${_d}.${_t})
 DETAILS += "\t${_d}.${_t}:\t${${_d}.${_t}}\n"
@@ -34,7 +34,6 @@ DETAILS += "\t${_d}.${_t}: MISSING!"
 ERRORS += "ERROR: Template _t has no value for ${_d}.${_t} and no default (${_d})."
 .    endif
 .  endfor
-DETAILS += "\n"
 .endfor
 
 ALL_DT_PORTS !!=	${SQLITE} ${SQLPORTS} 'select FullPkgPath from DistTuple;'
@@ -59,7 +58,6 @@ templates:
 	@echo
 	@echo "1.1 Known Templates"
 	@echo "-------------------"
-	@echo
 	@echo ${DETAILS}
 
 list-dist-tuple-ports:
@@ -83,6 +81,6 @@ check-dist-tuple:
 .  endif
 
 # DEBUG
-	@echo ${PORTS_DATA}
+#	@echo ${PORTS_DATA}
 
 .PHONY: all check-dist-tuple list-dist-tuple-ports templates
