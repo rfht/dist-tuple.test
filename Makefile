@@ -30,8 +30,9 @@ DETAILS += "\t${_d}.${_t}:\t${${_d}.${_t}}\n"
 .    elif !empty(${_d})
 DETAILS += "\t${_d}:\t${${_d}}\n"
 .    else
+# XXX: really add DETAILS? Or make all ERRORS fatal and just stop?
 DETAILS += "\t${_d}.${_t}: MISSING!"
-ERRORS += "ERROR: Template _t has no value for ${_d}.${_t} and no default (${_d})."
+ERRORS += "Template _t has no value for ${_d}.${_t} and no default (${_d})."
 .    endif
 .  endfor
 .endfor
@@ -42,7 +43,11 @@ PORTS ?=		${ALL_DT_PORTS}
 
 .for _p in ${PORTS}
 _portline != ${SQLITE} ${SQLPORTS} 'SELECT Type, Account, Project, Id, Mv FROM DistTuple WHERE FullPkgPath = "${_p}";'
+.  if empty(_portline)
+ERRORS += "No such port with DistTuple: ${_p}"
+.  else
 PORTS_DATA.${_p} +:= "${_portline}"
+.  endif
 .endfor
 
 ## TARGETS ##
@@ -73,13 +78,14 @@ check-dist-tuple:
 	@echo "EXTRACT_SUFX.github:\t${EXTRACT_SUFX.github}"
 	@echo "HOMEPAGE:\t${HOMEPAGE}"
 
-.END:
-.  if defined(ERRORS)
+.if defined(ERRORS)
+.BEGIN:
 	@echo
-	@echo 1>&2 "Exiting with error:"
+	@echo 1>&2 "Exiting with error(s):"
 .    for _m in ${ERRORS}
 	@echo 1>&2 ${_m}
 .    endfor
+	@exit 1
 .  endif
 
 .PHONY: all check-dist-tuple list-dist-tuple-ports templates
