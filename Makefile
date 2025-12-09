@@ -37,11 +37,11 @@ ERRORS += "ERROR: Template _t has no value for ${_d}.${_t} and no default (${_d}
 .endfor
 
 # TODO: with sqlports 7.54, need to select unique FullPkgPath
-ALL_DT_PORTS !!=	${SQLITE} ${SQLPORTS} 'select FullPkgPath from DistTuple;'
+ALL_DT_PORTS !!=	${SQLITE} ${SQLPORTS} 'SELECT DISTINCT FullPkgPath FROM DistTuple;'
 PORTS ?=		${ALL_DT_PORTS}
 
 .for _p in ${PORTS}
-_portline != ${SQLITE} ${SQLPORTS} 'select Type, Account, Project, Id, Mv from DistTuple where FullPkgPath = "${_p}";'
+_portline != ${SQLITE} ${SQLPORTS} 'SELECT Type, Account, Project, Id, Mv FROM DistTuple WHERE FullPkgPath = "${_p}";'
 PORTS_DATA.${_p} +:= "${_portline}"
 .endfor
 
