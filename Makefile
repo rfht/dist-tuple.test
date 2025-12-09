@@ -24,11 +24,13 @@ SQLITE ?=	${LOCALBASE}/bin/sqlite3
 _TEMPLATES = ${.VARIABLES:MSITES.*:E}
 .for _t in ${_TEMPLATES}
 DETAILS += "\n${_t}:\n"
-.  for _d in SITES TEMPLATE_EXTRACT_SUFX TEMPLATE_DISTFILES TEMPLATE_HOMEPAGE
+# XXX: doesn't account for (not yet used) option for EXTRACT_SUFX.x
+#      (see dist-tuple.pattern)
+.  for _d in SITES TEMPLATE_DISTFILES TEMPLATE_EXTRACT_SUFX TEMPLATE_HOMEPAGE
 .    if !empty(${_d}.${_t})
-DETAILS += "\t${_d}.${_t}:\t${${_d}.${_t}}\n"
+DETAILS += "\t${${_d}.${_t}}\n"
 .    elif !empty(${_d})
-DETAILS += "\t${_d}:\t${${_d}}\n"
+DETAILS += "\t${${_d}}\n"
 .    else
 # XXX: really add DETAILS? Or make all ERRORS fatal and just stop?
 DETAILS += "\t${_d}.${_t}: MISSING!"
