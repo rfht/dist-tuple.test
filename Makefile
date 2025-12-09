@@ -24,22 +24,20 @@ SQLITE ?=	${LOCALBASE}/bin/sqlite3
 _TEMPLATES = ${.VARIABLES:MSITES.*:E}
 .for _t in ${_TEMPLATES}
 DETAILS += "\n${_t}:\n"
-# XXX: doesn't account for (not yet used) option for EXTRACT_SUFX.x
-#      (see dist-tuple.pattern)
-.  for _d in SITES TEMPLATE_DISTFILES TEMPLATE_EXTRACT_SUFX TEMPLATE_HOMEPAGE
+.  for _d in SITES TEMPLATE_DISTFILES EXTRACT_SUFX TEMPLATE_HOMEPAGE
 .    if !empty(${_d}.${_t})
 DETAILS += "\t${${_d}.${_t}}\n"
+# EXTRACT_SUFX.${_t} falls back to TEMPLATE_EXTRACT_SUFX if not defined
+.    elif empty(${_d:C/^EXTRACT_SUFX*//})
+DETAILS += "\t${TEMPLATE_EXTRACT_SUFX}\n"
 .    elif !empty(${_d})
 DETAILS += "\t${${_d}}\n"
 .    else
-# XXX: really add DETAILS? Or make all ERRORS fatal and just stop?
-DETAILS += "\t${_d}.${_t}: MISSING!"
-ERRORS += "Template _t has no value for ${_d}.${_t} and no default (${_d})."
+ERRORS += "Template ${_t} has no value for ${_d}.${_t} and no default (${_d})."
 .    endif
 .  endfor
 .endfor
 
-# TODO: with sqlports 7.54, need to select unique FullPkgPath
 ALL_DT_PORTS !!=	${SQLITE} ${SQLPORTS} 'SELECT DISTINCT FullPkgPath FROM DistTuple;'
 PORTS ?=		${ALL_DT_PORTS}
 
