@@ -18,69 +18,40 @@ DT_MK ?=	${PORTSDIR}/infrastructure/mk/dist-tuple.port.mk
 SQLPORTS ?=	${LOCALBASE}/share/sqlports
 SQLITE ?=	${LOCALBASE}/bin/sqlite3
 
-.include "${DT_MK}"
-# XXX: is placeholders.mk really needed?
-.include "placeholders.mk"
+QUERY_FLAGS =	-f query.mk DT_MK="${DT_MK}" PORTSDIR="${PORTSDIR}"
 
-_TEMPLATES = ${.VARIABLES:MSITES.*:E}
-.for _t in ${_TEMPLATES}
-DETAILS += "\n${_t}:\n"
-.  for _d in SITES TEMPLATE_DISTFILES EXTRACT_SUFX TEMPLATE_HOMEPAGE
-.    if !empty(${_d}.${_t})
-DETAILS += "\t${${_d}.${_t}}\n"
-# EXTRACT_SUFX.${_t} falls back to TEMPLATE_EXTRACT_SUFX if not defined
-.    elif empty(${_d:C/^EXTRACT_SUFX*//})
-DETAILS += "\t${TEMPLATE_EXTRACT_SUFX}\n"
-.    elif !empty(${_d})
-DETAILS += "\t${${_d}}\n"
-.    else
-ERRORS += "Template ${_t} has no value for ${_d}.${_t} and no default (${_d})."
-.    endif
-.  endfor
-.endfor
-
-# XXX: fix ALL_DT_PORTS always being queried - it should only be run when used,
-#      e.g. NOT for target 'templates'
 ALL_DT_PORTS !!=	${SQLITE} ${SQLPORTS} 'SELECT DISTINCT FullPkgPath FROM DistTuple;'
 PORTS ?=		${ALL_DT_PORTS}
 
-.for _p in ${PORTS}
+# save cpu cycles for templates; this way ALL_DT_PORTS shell command isn't run
+.ifnmake templates
+.  for _p in ${PORTS}
 _portline != ${SQLITE} ${SQLPORTS} 'SELECT Type, Account, Project, Id, Mv FROM DistTuple WHERE FullPkgPath = "${_p}";'
-.  if empty(_portline)
+.    if empty(_portline)
 ERRORS += "No such port with DistTuple: ${_p}"
-.  else
-PORTS_DATA.${_p} +:= ${_portline}
-.  endif
-.endfor
+.    else
+DIST_TUPLE.${_p} +:= ${_portline:S/|/ /g}
+.    endif
+.  endfor
+.endif
 
 ## TARGETS ##
 
-all: templates
-.  for _p in ${PORTS}
-	@echo "${_p}:"
-	@echo "${_p:C/./-/g}-"
-.    for _e in ${PORTS_DATA.${_p}}
-	@echo "${_e:S/|/ /g}"
-.    endfor
+all: templates ${PORTS}
+
+${PORTS}:
+	@echo "$@:"
+	@echo "${@:C/./-/g}-"
+	@echo ${DIST_TUPLE.$@}
 	@echo
-.  endfor
+	@${.MAKE} ${QUERY_FLAGS} DIST_TUPLE="${DIST_TUPLE.$@}" derived-vars
+	@echo
 
 templates:
-	@echo
-	@echo "Templates"
-	@echo "---------"
-	@echo ${DETAILS}
+	@${.MAKE} ${QUERY_FLAGS} templates
 
 list-dist-tuple-ports:
 	@echo ${ALL_DT_PORTS}
-
-check-dist-tuple:
-	@echo "DISTNAME:\t${DISTNAME}"
-	@echo "_DT_WRKDIST:\t${_DT_WRKDIST}"
-	@echo "DISTFILES:\t${DISTFILES}"
-	@echo "DISTFILES.github:\t${DISTFILES.github}"
-	@echo "EXTRACT_SUFX.github:\t${EXTRACT_SUFX.github}"
-	@echo "HOMEPAGE:\t${HOMEPAGE}"
 
 .if defined(ERRORS)
 .BEGIN:
@@ -92,4 +63,4 @@ check-dist-tuple:
 	@exit 1
 .  endif
 
-.PHONY: all check-dist-tuple list-dist-tuple-ports templates
+.PHONY: all check-dist-tuple list-dist-tuple-ports templates ${PORTS}
