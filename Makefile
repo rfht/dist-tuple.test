@@ -37,16 +37,20 @@ DIST_TUPLE.${_p} +:= ${_portline:S/|/ /g}
 
 ## TARGETS ##
 
-all: templates ${PORTS}
+all: print-dt-mk templates ${PORTS}
 
 ${PORTS}:
 	@echo "$@:"
 	@echo "${@:C/./-/g}-"
-	@printf "%-15s %s" "DIST_TUPLE" "= "
+	@printf "%-15s %s " "DIST_TUPLE" "="
 	@echo ${DIST_TUPLE.$@}
 	@echo
 	@${.MAKE} ${QUERY_FLAGS} DIST_TUPLE="${DIST_TUPLE.$@}" derived-vars
 	@echo
+
+print-dt-mk:
+	@printf "%-15s %s " "DT_MK" "="
+	@echo "${DT_MK}"
 
 templates:
 	@${.MAKE} ${QUERY_FLAGS} templates
