@@ -1,6 +1,8 @@
 # dist-tuple.test
 
-Tool to test dist-tuple for regressions. It prints the variables created by `dist-tuple.port.mk` in OpenBSD's `/usr/ports/infrastructure/mk/` for selected ports or all that use `DIST_TUPLE`. A custom `dist-tuple.port.mk` can be passed as `DT_MK`. This way the output with 2 different such files can be compared to check for regressions.
+Tool to test dist-tuple for regressions. It prints the variables created by `dist-tuple.port.mk` in OpenBSD's `/usr/ports/infrastructure/mk/` for selected ports or all that use `DIST_TUPLE`. A custom `dist-tuple.port.mk` can be passed as `DT_MK`. This way the output with 2 different such files can be compared for regressions.
+
+dist-tuple.test uses sqlports(5) for the different uses of `DIST_TUPLE` in the ports tree. It loads nothing other than `dist-tuple.port.mk` and its dependencies. The goal is to provide a time-saving way to check for regressions with updates to `dist-tuple.port.mk` that doesn't depend on running a bulk(8) build.
 
 The output contains the values of all variables for the templates and each port. Template variables:
 
