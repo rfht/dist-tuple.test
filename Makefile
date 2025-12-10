@@ -42,6 +42,7 @@ all: templates ${PORTS}
 ${PORTS}:
 	@echo "$@:"
 	@echo "${@:C/./-/g}-"
+	@printf "%-15s %s" "DIST_TUPLE" "= "
 	@echo ${DIST_TUPLE.$@}
 	@echo
 	@${.MAKE} ${QUERY_FLAGS} DIST_TUPLE="${DIST_TUPLE.$@}" derived-vars

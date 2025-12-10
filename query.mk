@@ -41,14 +41,18 @@ ERRORS += "Template ${_t} has no value for ${_d}.${_t} and no default (${_d})."
 
 derived-vars:
 .poison empty (DIST_TUPLE)
-	@echo "${DISTNAME} "
-	@echo "${_DT_WRKDIST} "
-	@echo "${HOMEPAGE} "
-	@echo '"${MODDIST-TUPLE_post-extract:C/\$//g}"'
-	@echo "${DT_DISTFILES}"
-	@echo '"${${DT_DISTFILES}}"'
-	@echo "${DT_EXTRACT_SUFX}"
+	@printf "%-15s %s " "DISTNAME" "="
+	@echo "${DISTNAME}"
+	@printf "%-15s %s " "_DT_WRKDIST" "="
+	@echo "${_DT_WRKDIST}"
+	@printf "%-15s %s " "HOMEPAGE" "="
+	@echo "${HOMEPAGE}"
+	@printf "%-15s %s " "${DT_EXTRACT_SUFX}" "="
 	@echo "${${DT_EXTRACT_SUFX}}"
+	@printf "%-15s %s " "${DT_DISTFILES}" "="
+	@echo "${${DT_DISTFILES}}"
+	@printf "%-15s %s " "MODDIST-TUPLE_post-extract:" "="
+	@echo '"${MODDIST-TUPLE_post-extract:C/\$//g}"'
 
 templates:
 	@echo
