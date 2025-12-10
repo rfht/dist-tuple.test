@@ -19,6 +19,7 @@ SQLPORTS ?=	${LOCALBASE}/share/sqlports
 SQLITE ?=	${LOCALBASE}/bin/sqlite3
 
 .include "${DT_MK}"
+# XXX: is placeholders.mk really needed?
 .include "placeholders.mk"
 
 _TEMPLATES = ${.VARIABLES:MSITES.*:E}
@@ -38,6 +39,8 @@ ERRORS += "Template ${_t} has no value for ${_d}.${_t} and no default (${_d})."
 .  endfor
 .endfor
 
+# XXX: fix ALL_DT_PORTS always being queried - it should only be run when used,
+#      e.g. NOT for target 'templates'
 ALL_DT_PORTS !!=	${SQLITE} ${SQLPORTS} 'SELECT DISTINCT FullPkgPath FROM DistTuple;'
 PORTS ?=		${ALL_DT_PORTS}
 
@@ -46,7 +49,7 @@ _portline != ${SQLITE} ${SQLPORTS} 'SELECT Type, Account, Project, Id, Mv FROM D
 .  if empty(_portline)
 ERRORS += "No such port with DistTuple: ${_p}"
 .  else
-PORTS_DATA.${_p} +:= "${_portline}"
+PORTS_DATA.${_p} +:= ${_portline}
 .  endif
 .endfor
 
@@ -54,17 +57,18 @@ PORTS_DATA.${_p} +:= "${_portline}"
 
 all: templates
 .  for _p in ${PORTS}
-	@echo "Check port ${_p}:"
-	@echo ${PORTS_DATA.${_p}}
+	@echo "${_p}:"
+	@echo "${_p:C/./-/g}-"
+.    for _e in ${PORTS_DATA.${_p}}
+	@echo "${_e:S/|/ /g}"
+.    endfor
+	@echo
 .  endfor
 
 templates:
 	@echo
-	@echo "1. Static Variables"
-	@echo "==================="
-	@echo
-	@echo "1.1 Known Templates"
-	@echo "-------------------"
+	@echo "Templates"
+	@echo "---------"
 	@echo ${DETAILS}
 
 list-dist-tuple-ports:
